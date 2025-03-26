@@ -1,6 +1,12 @@
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
-client = MongoClient("mongodb+srv://test:test@cluster0.ncqlb.mongodb.net/")
+load_dotenv()
+
+mongo_uri = os.getenv("MONGO_URI")
+
+client = MongoClient(mongo_uri)
 
 db = client["crypto_manager"]
 
