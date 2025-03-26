@@ -1,0 +1,14 @@
+keys/private.pem
+keys/aes.key.enc
+.env
+
+*.pyc
+__pycache__/
+*.swp
+.DS_Store
+
+files/*.enc
+
+db/dump/
+
+venv/
