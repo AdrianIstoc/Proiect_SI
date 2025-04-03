@@ -1,38 +1,20 @@
 from mongo import *
-from dotenv import dotenv_values
+from crud.crud_files import *
 
 connection = MongoDBConnection()
 
-collection = connection.get_collection(config["TEST"])
+files_collection = CRUDFiles(connection)
 
-# collection.insert_one({"_id": 2, "message": "A doua inserare"})
+file_id = files_collection.create_document("document.txt", "document.enc", "AES-256", key_id="some_key_id")
+print(f"Fișier creat cu ID: {file_id}")
 
+files = files_collection.get_all_documents()
+print(files)
 
+modified_count = files_collection.update_file_status(file_id, "decrypted")
+print(f"Fișierul a fost modificat: {modified_count} documente")
 
-
-
-
-# documents = collection.find()
-# for doc in documents:
-#     print(doc)
-
-
-
-connection.create_collection(config["FILE_COLLECTION"])
-
-print("Colectiile din DB: ", connection.list_collections())
+deleted_count = files_collection.delete_file(file_id)
+print(f"Fișier șters: {deleted_count} documente")
 
 connection.close_connection()
-
-# print("Hello!")
-
-# config = dotenv_values(".env")
-
-
-# client = MongoClient(config["MONGO_URI"])
-
-# db = client[config["DB_NAME"]]
-# collection = db["files"]
-
-# print("Bye!")
-# print(db.list_collection_names())
