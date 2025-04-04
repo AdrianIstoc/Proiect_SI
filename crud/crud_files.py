@@ -8,7 +8,7 @@ class CRUDFiles:
     def get_collection(self):
         return self.collection
     
-    def create_document(self, filename, encrypted_filename, algorithm, key_id, status="encrypted"):
+    def create_file(self, filename, encrypted_filename, algorithm, key_id, status="encrypted"):
         file_data = {
             "filename": filename,
             "encrypted_filename": encrypted_filename,
@@ -21,7 +21,7 @@ class CRUDFiles:
         result = self.get_collection().insert_one(file_data)
         return result.inserted_id
     
-    def get_all_documents(self):
+    def get_all_files(self):
         return list(self.get_collection().find())
     
     def get_file_by_id(self, file_id):
