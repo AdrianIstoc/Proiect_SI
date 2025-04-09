@@ -2,16 +2,17 @@ from mongo import *
 from crud.crud_files import *
 from crud.crud_keys import *
 from crud.crut_performances import *
+from pprint import pprint
 
 connection = MongoDBConnection()
 
 files_collection = CRUDFiles(connection)
 
-file_id = files_collection.create_file("document.txt", "document.enc", "AES-256", key_id="some_key_id")
+file_id = files_collection.create_file("document.txt", 1000, "document.enc", "AES-256", key_id="some_key_id")
 print(f"Fisier creat cu ID: {file_id}")
 
 files = files_collection.get_all_files()
-print(files)
+pprint(files)
 
 modified_count = files_collection.update_file_status(file_id, "decrypted")
 print(f"Fisierul a fost modificat: {modified_count} fisiere")
@@ -26,7 +27,7 @@ key_id = keys_collection.create_key(algorithm="AES-256", key="base64_key_value",
 print(f"Cheie creata cu ID: {key_id}")
 
 keys = keys_collection.get_all_keys()
-print(keys)
+pprint(keys)
 
 modified_count = keys_collection.update_key(key_id, key="new_base64_key")
 print(f"Cheia a fost modificata: {modified_count} chei")
@@ -42,7 +43,7 @@ perf_id = perfs_collection.create_performance("fileID", "AES-256", "encryption",
 print(f"Performanta creata cu ID: {perf_id}")
 
 perfs = perfs_collection.get_all_performances()
-print(perfs)
+pprint(perfs)
 
 modified_count = perfs_collection.update_performance(perf_id, 0.33, 10000)
 print(f"Performanta a fost modificata: {modified_count} performante")

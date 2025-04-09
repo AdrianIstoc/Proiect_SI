@@ -8,9 +8,10 @@ class CRUDFiles:
     def get_collection(self):
         return self.collection
     
-    def create_file(self, filename, encrypted_filename, algorithm, key_id, status="encrypted"):
+    def create_file(self, filename, file_size_bytes, encrypted_filename, algorithm, key_id, status="encrypted"):
         file_data = {
             "filename": filename,
+            "file_size_bytes": file_size_bytes,
             "encrypted_filename": encrypted_filename,
             "algorithm": algorithm,
             "key_id": key_id,
