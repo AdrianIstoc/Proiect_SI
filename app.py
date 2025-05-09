@@ -1,55 +1,57 @@
-from mongo import *
+import time
+import os
+import psutil
 from crud.crud_files import *
 from crud.crud_keys import *
 from crud.crut_performances import *
+from crud.raw_algorithm import *
+from utilz.openssl_utils import *
+from mongo import *
 from pprint import pprint
+
+desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+input_file = os.path.join(desktop_path, "chestie dppd.txt")
+output_file = os.path.join(desktop_path, "chestie dppd.txt.enc")
+
+parola = "abcdefgh"
+
+algorithm_name = "AES"
+algorithm_type = "symmetric"
+key_length_bits=256
+block_size = 128
+mode = "CBC"
+
 
 connection = MongoDBConnection()
 
-files_collection = CRUDFiles(connection)
+alg_conn = CRUDAlgorithm(connection)
+key_conn = CRUDKeys(connection)
+fle_conn = CRUDFiles(connection)
+prf_conn = CRUDPerformances(connection)
 
-file_id = files_collection.create_file("document.txt", 1000, "document.enc", "AES-256", key_id="some_key_id")
-print(f"Fisier creat cu ID: {file_id}")
+alg_id = alg_conn.create_algorithm(algorithm_name, algorithm_type, key_length_bits, block_size, mode)
+key_id = key_conn.create_key(alg_id, parola)
 
-files = files_collection.get_all_files()
-pprint(files)
+start_time = time.perf_counter()
+process = psutil.Process(os.getpid())
+mem_before = process.memory_info().rss
 
-modified_count = files_collection.update_file_status(file_id, "decrypted")
-print(f"Fisierul a fost modificat: {modified_count} fisiere")
+encrypt_file(input_file, output_file, parola, algorithm="aes-256-cbc")
 
-deleted_count = files_collection.delete_file(file_id)
-print(f"Fisier sters: {deleted_count} fisiere")
+end_time = time.perf_counter()
+mem_after = process.memory_info().rss
 
+execution_time = end_time - start_time
+memory_used = mem_after - mem_before
 
-keys_collection = CRUDKeys(connection)
+meta = get_file_metadata(input_file)
 
-key_id = keys_collection.create_key(algorithm="AES-256", key="base64_key_value", key_type="symmetric", expires_at=datetime.datetime(2025, 4, 4))
-print(f"Cheie creata cu ID: {key_id}")
+fle_id = fle_conn.create_file(os.path.basename(input_file), meta["size"], os.path.basename(output_file), alg_id, key_id, )
 
-keys = keys_collection.get_all_keys()
-pprint(keys)
-
-modified_count = keys_collection.update_key(key_id, key="new_base64_key")
-print(f"Cheia a fost modificata: {modified_count} chei")
-
-deleted_count = keys_collection.delete_key(key_id)
-print(f"Cheie stearsa: {deleted_count} chei")
+prf_id = prf_conn.create_performance(fle_id, alg_id, "encrypt", execution_time, memory_used, meta["size"])
 
 
-
-perfs_collection = CRUDPerformances(connection)
-
-perf_id = perfs_collection.create_performance("fileID", "AES-256", "encryption", 0.47, 1980, 10000)
-print(f"Performanta creata cu ID: {perf_id}")
-
-perfs = perfs_collection.get_all_performances()
-pprint(perfs)
-
-modified_count = perfs_collection.update_performance(perf_id, 0.33, 10000)
-print(f"Performanta a fost modificata: {modified_count} performante")
-
-deleted_count = perfs_collection.delete_performance(perf_id)
-print(f"Performanta stearsa: {deleted_count} performante")
-
-
-connection.close_connection()
+pprint(fle_conn.get_all_files())
+pprint(key_conn.get_all_keys())
+pprint(prf_conn.get_all_performances())
+pprint(alg_conn.get_all_algorithms())
