@@ -8,15 +8,14 @@ class CRUDPerformances:
     def get_collection(self):
         return self.collection
     
-    def create_performance(self, file_id, algorithm, operation, execution_time_seconds, memory_usage_byte, file_size_bytes):
+    def create_performance(self, file_id, algorithm_id, operation, execution_time_seconds, memory_usage_byte, file_size_bytes):
         perf_data = {
             "file_id": file_id,
-            "algorithm": algorithm,
+            "algorithm_id": algorithm_id,
             "operation": operation,
             "execution_time_seconds": execution_time_seconds,
             "memory_usage_bytes": memory_usage_byte,
             "execution_time_per_byte": execution_time_seconds / file_size_bytes if file_size_bytes else None,
-            "execution_time_per_bit": execution_time_seconds / (file_size_bytes * 8) if file_size_bytes else None,
             "created_at": datetime.datetime.utcnow()
         }
         result = self.get_collection().insert_one(perf_data)
@@ -28,8 +27,8 @@ class CRUDPerformances:
     def get_performances_by_file(self, file_id):
         return list(self.get_collection().find({"file_id": file_id}))
     
-    def get_performances_by_algorithm(self, algorithm):
-        return list(self.get_collection().find({"algorithm": algorithm}))
+    def get_performances_by_algorithm(self, algorithm_id):
+        return list(self.get_collection().find({"algorithm_id": algorithm_id}))
     
     def get_performances_by_operation(self, operation):
         return list(self.get_collection().find({"operation": operation}))
@@ -45,8 +44,7 @@ class CRUDPerformances:
 
         if execution_time_seconds is not None:
             update_data["execution_time_seconds"] = execution_time_seconds
-            update_data["execution_time_per_byte"] = execution_time_seconds / file_size_bytes 
-            update_data["execution_time_per_bit"] = execution_time_seconds / (file_size_bytes*8)
+            update_data["execution_time_per_byte"] = execution_time_seconds / file_size_bytes
         if memory_usage_bytes is not None:
             update_data["memory_usage_bytes"] = memory_usage_bytes
 

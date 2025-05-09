@@ -8,9 +8,9 @@ class CRUDKeys:
     def get_collection(self):
         return self.collection
     
-    def create_key(self, algorithm, key, key_type="symmetric", expires_at=None, public_key=None, private_key=None):
+    def create_key(self, algorithm_id, key, key_type="symmetric", expires_at=None, public_key=None, private_key=None):
         key_data={
-            "algorithm": algorithm,
+            "algorithm_id": algorithm_id,
             "key": key,
             "key_type": key_type,
             "created_at": datetime.datetime.utcnow(),
@@ -30,10 +30,10 @@ class CRUDKeys:
     def get_keys_by_type(self, key_type):
         return list(self.get_collection().find({"key_type": key_type}))
     
-    def update_key(self, key_id, algorithm=None, key=None, expires_at=None, public_key=None, private_key=None):
+    def update_key(self, key_id, algorithm_id=None, key=None, expires_at=None, public_key=None, private_key=None):
         update_data = {}
-        if algorithm:
-            update_data["algorithm"]=algorithm
+        if algorithm_id:
+            update_data["algorithm_id"]=algorithm_id
         if key:
             update_data["key"] = key
         if expires_at:

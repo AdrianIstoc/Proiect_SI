@@ -8,12 +8,12 @@ class CRUDFiles:
     def get_collection(self):
         return self.collection
     
-    def create_file(self, filename, file_size_bytes, encrypted_filename, algorithm, key_id, status="encrypted"):
+    def create_file(self, filename, file_size_bytes, encrypted_filename, algorithm_id, key_id, status="encrypted"):
         file_data = {
             "filename": filename,
             "file_size_bytes": file_size_bytes,
             "encrypted_filename": encrypted_filename,
-            "algorithm": algorithm,
+            "algorithm_id": algorithm_id,
             "key_id": key_id,
             "status": status,
             "created_at": datetime.datetime.utcnow(),
@@ -28,8 +28,8 @@ class CRUDFiles:
     def get_file_by_id(self, file_id):
         return self.get_collection().find_one({"_id": file_id})
     
-    def get_files_by_algorithm(self, algorithm):
-        return list(self.get_collection().find({"algorithm": algorithm}))
+    def get_files_by_algorithm(self, algorithm_id):
+        return list(self.get_collection().find({"algorithm_id": algorithm_id}))
     
     def update_file_status(self, file_id, status):
         update_data={
@@ -39,12 +39,12 @@ class CRUDFiles:
         result = self.get_collection().update_one({"_id": file_id}, {"$set": update_data})
         return result.modified_count
     
-    def update_file(self, file_id, encrypted_filename=None, algorithm=None):
+    def update_file(self, file_id, encrypted_filename=None, algorithm_id=None):
         update_data={}
         if encrypted_filename:
             update_data["encrypted_filename"]=encrypted_filename
-        if algorithm:
-            update_data["algorithm"] = algorithm
+        if algorithm_id:
+            update_data["algorithm_id"] = algorithm_id
         
         if update_data:
             update_data["updated_at"]=datetime.datetime.utcnow()
