@@ -55,3 +55,8 @@ pprint(fle_conn.get_all_files())
 pprint(key_conn.get_all_keys())
 pprint(prf_conn.get_all_performances())
 pprint(alg_conn.get_all_algorithms())
+
+pprint(fle_conn.delete_file(fle_id))
+pprint(key_conn.delete_key(key_id))
+pprint(prf_conn.delete_performance(prf_id))
+pprint(alg_conn.delete_algorithm(alg_id))
