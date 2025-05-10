@@ -1,6 +1,5 @@
 keys/private.pem
 keys/aes.key.enc
-.env
 
 *.pyc
 __pycache__/
