@@ -1,4 +1,3 @@
 pymongo
 python-dotenv
-pprint
 psutil
