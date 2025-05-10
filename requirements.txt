@@ -1,5 +1,4 @@
 pymongo
 python-dotenv
-subprocess
 pprint
 psutil
