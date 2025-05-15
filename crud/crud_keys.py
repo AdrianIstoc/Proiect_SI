@@ -8,15 +8,15 @@ class CRUDKeys:
     def get_collection(self):
         return self.collection
     
-    def create_key(self, algorithm_id, key, key_type="symmetric", expires_at=None, public_key=None, private_key=None):
-        key_data={
+    def create_key(self, algorithm_id, key = None, key_type="symmetric", expires_at=None, public_key=None, private_key=None):
+        key_data = {
             "algorithm_id": algorithm_id,
-            "key": key,
-            "key_type": key_type,
-            "created_at": datetime.datetime.utcnow(),
-            "expires_at": expires_at,
+            "key": key if key_type == "symmetric" else None,
             "public_key": public_key if key_type == "asymmetric" else None,
-            "private_key": private_key if key_type == "asymmetric" else None
+            "private_key": private_key if key_type == "asymmetric" else None,
+            "key_type": key_type,
+            "created_at": datetime.datetime.now(),
+            "expires_at": expires_at
         }
         result = self.get_collection().insert_one(key_data)
         return result.inserted_id
@@ -33,7 +33,7 @@ class CRUDKeys:
     def update_key(self, key_id, algorithm_id=None, key=None, expires_at=None, public_key=None, private_key=None):
         update_data = {}
         if algorithm_id:
-            update_data["algorithm_id"]=algorithm_id
+            update_data["algorithm_id"] = algorithm_id
         if key:
             update_data["key"] = key
         if expires_at:
@@ -44,9 +44,9 @@ class CRUDKeys:
             update_data["private_key"] = private_key
 
         if update_data:
+            update_data["updated_at"] = datetime.datetime.now()
             result = self.get_collection().update_one({"_id": key_id}, {"$set": update_data})
             return result.modified_count
-        
         return 0
     
 
