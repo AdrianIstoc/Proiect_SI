@@ -14,6 +14,7 @@ input_file = os.path.join(desktop_path, "chestie dppd.txt")
 private_key_file = os.path.join(desktop_path, "private.pem")
 public_key_file = os.path.join(desktop_path, "public.pem")
 
+#hihihi asta-i un comentariu hihihi
 
 connection = MongoDBConnection()
 
