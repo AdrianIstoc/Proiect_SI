@@ -1,8 +1,8 @@
 keys/private.pem
 keys/aes.key.enc
-.enc
-.key
-.txt
+*.enc
+*.key
+*.txt
 
 *.pyc
 __pycache__/
