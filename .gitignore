@@ -11,6 +11,10 @@ __pycache__/
 
 files/*.enc
 
+GUI/*.enc
+GUI/*.txt
+GUI/*.inc
+
 db/dump/
 
 venv/
