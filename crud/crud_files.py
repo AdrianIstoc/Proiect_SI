@@ -8,7 +8,8 @@ class CRUDFiles:
     def get_collection(self):
         return self.collection
     
-    def create_file(self, filename, file_size_bytes, encrypted_filename, algorithm_id, key_id, status="encrypted"):
+    def create_file(self, filename, file_size_bytes, encrypted_filename, algorithm_id, key_id, status="encrypted", file_hash = None):
+        now = datetime.datetime.now()
         file_data = {
             "filename": filename,
             "file_size_bytes": file_size_bytes,
@@ -16,8 +17,8 @@ class CRUDFiles:
             "algorithm_id": algorithm_id,
             "key_id": key_id,
             "status": status,
-            "created_at": datetime.datetime.utcnow(),
-            "updated_at": datetime.datetime.utcnow()
+            "file_hash": file_hash,
+            "created_at": now
         }
         result = self.get_collection().insert_one(file_data)
         return result.inserted_id
@@ -34,7 +35,7 @@ class CRUDFiles:
     def update_file_status(self, file_id, status):
         update_data={
             "status": status,
-            "updated_at": datetime.datetime.utcnow()
+            "updated_at": datetime.datetime.now()
         }
         result = self.get_collection().update_one({"_id": file_id}, {"$set": update_data})
         return result.modified_count
@@ -47,7 +48,7 @@ class CRUDFiles:
             update_data["algorithm_id"] = algorithm_id
         
         if update_data:
-            update_data["updated_at"]=datetime.datetime.utcnow()
+            update_data["updated_at"]=datetime.datetime.now()
             result = self.get_collection().update_one({"_id": file_id}, {"$set": update_data})
             return result.modified_count
         

@@ -8,14 +8,14 @@ class CRUDAlgorithm:
     def get_collection(self):
         return self.collection
 
-    def create_algorithm(self, name, type, key_length_bits, block_size, mode):
+    def create_algorithm(self, name, type, key_length_bits, block_size=None, mode=None):
         alg_data={
             "name": name,
             "type": type,
             "key_length_bits": key_length_bits,
             "block_size": block_size,
             "mode": mode,
-            "created_at": datetime.datetime.utcnow()
+            "created_at": datetime.datetime.now()
         }
         reslut = self.get_collection().insert_one(alg_data)
         return reslut.inserted_id

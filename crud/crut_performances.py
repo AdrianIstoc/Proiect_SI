@@ -16,7 +16,7 @@ class CRUDPerformances:
             "execution_time_seconds": execution_time_seconds,
             "memory_usage_bytes": memory_usage_byte,
             "execution_time_per_byte": execution_time_seconds / file_size_bytes if file_size_bytes else None,
-            "created_at": datetime.datetime.utcnow()
+            "created_at": datetime.datetime.now()
         }
         result = self.get_collection().insert_one(perf_data)
         return result.inserted_id
