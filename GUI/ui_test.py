@@ -1,64 +1,95 @@
-import sys
-import os
-
-# Add the project root directory to sys.path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if project_root not in sys.path:
-    sys.path.append(project_root)
-
-from tkinter import filedialog
-from utilz.openssl_utils import *
-
 import customtkinter as ctk
+from tkinter import filedialog, messagebox
 import os
+from datetime import datetime
+from pymongo import MongoClient
 
-desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+from utilz.openssl_utils import encrypt_file_aes
+from utilz.openssl_utils import encrypt_file_rsa
+from utilz.openssl_utils import encrypt_file_hybrid
 
-class DB_App:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("DB App SI")
-        self.root.geometry("800x600")
-        self.root.resizable(True, True)
+client = MongoClient("mongodb://localhost:27017/")
+db = client["CryptoFileDB"]
+files_collection = db["EncryptedFiles"]
 
-        ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("blue")
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
 
-        #file to be encrypted
-        self.encrypt_button = ctk.CTkButton(self.root, text="Encrypt File", command=self.encrypting_file)
-        self.encrypt_button.pack(pady=20)
+class EncryptorUI(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Criptare Fișier")
+        self.geometry("600x400")
 
-        self.status_label = ctk.CTkLabel(self.root, text="", text_color="white")
-        self.status_label.pack(pady=20)
+        self.input_file = None
+        self.output_file = None
 
-        self.create_ui()
-    
-    def create_ui(self):
-        #TBA
-        return
+        self.select_input_btn = ctk.CTkButton(self, text="Selectează fișier", command=self.select_input_file)
+        self.select_input_btn.pack(pady=10)
 
-    def load_file(self):
-        if os.path.exists(self.encryption_file):
-            try:
-                with open(self.encryption_file, "r") as f:
-                    data = f.read()
-            except:
-                return {}
-            return {}
-        
-    def encrypting_file(self):
-        file_path = filedialog.askopenfilename(title="Select file to encrypt")
-        if file_path:
-            try:
-                file_name = os.path.splitext(os.path.basename(file_path))[0]
-                encrypt_file(file_path, file_name, "password")
-                self.status_label.configure(text="File encrypted successfully", text_color="green")
-            except Exception as e:
-                print(f"Error encrypting file: {e}")
-        else:
-            self.status_label.configure(text="No file selected", text_color="red")
+        self.select_output_btn = ctk.CTkButton(self, text="Selectează locația de ieșire", command=self.select_output_file)
+        self.select_output_btn.pack(pady=10)
+
+        self.algorithm_var = ctk.StringVar(value="AES")
+        self.algorithm_menu = ctk.CTkOptionMenu(self, values=["AES", "RSA", "HYBRID"], variable=self.algorithm_var)
+        self.algorithm_menu.pack(pady=10)
+
+        self.encrypt_btn = ctk.CTkButton(self, text="Criptează", command=self.encrypt_file)
+        self.encrypt_btn.pack(pady=20)
+
+        self.status_label = ctk.CTkLabel(self, text="")
+        self.status_label.pack(pady=10)
+
+    def select_input_file(self):
+        path = filedialog.askopenfilename()
+        if path:
+            self.input_file = path
+            self.status_label.configure(text=f"Fișier selectat: {os.path.basename(path)}")
+
+    def select_output_file(self):
+        path = filedialog.asksaveasfilename(defaultextension=".enc", filetypes=[("Encrypted Files", "*.enc")])
+        if path:
+            self.output_file = path
+            self.status_label.configure(text=f"Ieșire: {os.path.basename(path)}")
+
+    def encrypt_file(self):
+        if not self.input_file or not self.output_file:
+            messagebox.showerror("Eroare", "Selectează fișierul de intrare și ieșire.")
+            return
+
+        algorithm = self.algorithm_var.get()
+        try:
+            if algorithm == "AES":
+                result = encrypt_file_aes(self.input_file, self.output_file)
+            elif algorithm == "RSA":
+                result = encrypt_file_rsa(self.input_file, self.output_file)
+            elif algorithm == "HYBRID":
+                result = encrypt_file_hybrid(self.input_file, self.output_file)
+            else:
+                raise ValueError("Algoritm necunoscut.")
+
+            self.save_metadata(result, algorithm)
+            messagebox.showinfo("Succes", f"Fișier criptat cu {algorithm}!")
+            self.status_label.configure(text=f"✅ Criptat: {os.path.basename(self.output_file)}")
+
+        except Exception as e:
+            messagebox.showerror("Eroare la criptare", str(e))
+
+    def save_metadata(self, result, algorithm):
+        name = os.path.basename(self.input_file)
+        extension = os.path.splitext(name)[1]
+        metadata = {
+            "name": name,
+            "path": self.output_file,
+            "extension": extension,
+            "encryptionType": algorithm,
+            "algorithmName": result.get("algorithmName"),
+            "executionTime": result.get("executionTime"),
+            "memoryUsage": result.get("memoryUsage"),
+            "uploadDate": datetime.now()
+        }
+        files_collection.insert_one(metadata)
 
 if __name__ == "__main__":
-    app = ctk.CTk()
-    db_app = DB_App(app)
+    app = EncryptorUI()
     app.mainloop()
